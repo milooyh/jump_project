@@ -117,6 +117,8 @@ while running:
     # 장애물 이동 및 그리기
     for obstacle in obstacles:
         obstacle.x -= character_speed // 2  # 캐릭터 속도의 절반만 이동하도록 설정
+        if obstacle.x + obstacle_width < 0:  # 장애물이 화면을 벗어나면
+            obstacle.x = SCREEN_WIDTH  # 오른쪽에서 다시 나타남
         pygame.draw.rect(screen, obstacle_color, (obstacle.x, obstacle.y, obstacle_width, obstacle_height))
 
     # 충돌 검사 및 처리
