@@ -1,6 +1,10 @@
 import pygame
 import sys
 
+# Pygame 초기화
+pygame.init()
+pygame.font.init()
+
 # 화면 크기 설정
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600 # 가로 세로
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -9,6 +13,8 @@ pygame.display.set_caption("점프 점프")
 # 색깔 정의
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+ORANGE = (255, 165, 0)
+YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 FLOOR_COLOR = (144, 228, 144)
@@ -67,13 +73,13 @@ def check_collision(character, blocks):
     return None
 
 def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, lives, game_over
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over
     character_x = SCREEN_WIDTH // 2
     character_y = SCREEN_HEIGHT - character_height * 2
     vertical_momentum = 0
     is_on_ground = True
     space_pressed = False
-    lives = 3
+    life = 3
     game_over = False
 
 # 초기 설정
@@ -81,7 +87,7 @@ reset_game()
 
 # 게임 루프
 running = True
-lives = 3
+life = 3
 
 while running:
     screen.fill(WHITE)
@@ -141,8 +147,8 @@ while running:
                 vertical_momentum = 0
                 is_on_ground = True
         if obstacle_collided:
-            lives -= 1
-            if lives == 0:
+            life -= 1
+            if life == 0:
                 game_over = True
             else:
                 # 충돌 시 캐릭터 위치 초기화
@@ -167,13 +173,21 @@ while running:
     for block in blocks:
         pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
 
+    # 목숨에 따라 캐릭터 색상 변경
+    if life == 3:
+        character_color = RED
+    elif life == 2:
+        character_color = ORANGE
+    elif life == 1:
+        character_color = YELLOW
+
     # 캐릭터 처리
-    pygame.draw.rect(screen, RED, character_rect)
+    pygame.draw.rect(screen, character_color, character_rect)
 
     # 목숨 표시
     font = pygame.font.Font(None, 36)
-    lives_text = font.render(f'Lives: {lives}', True, BLACK)
-    screen.blit(lives_text, (10, 10))
+    life_text = font.render(f'Life: {life}', True, BLACK)
+    screen.blit(life_text, (10, 10))
 
     pygame.display.update()
     clock.tick(60)
