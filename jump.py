@@ -73,7 +73,7 @@ def check_collision(character, blocks):
     return None
 
 def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time
     character_x = SCREEN_WIDTH // 2
     character_y = SCREEN_HEIGHT - character_height * 2
     vertical_momentum = 0
@@ -81,6 +81,8 @@ def reset_game():
     space_pressed = False
     life = 3
     game_over = False
+    collision_message = ""
+    collision_time = 0
 
 # 초기 설정
 reset_game()
@@ -148,6 +150,8 @@ while running:
                 is_on_ground = True
         if obstacle_collided:
             life -= 1
+            collision_message = "life -1"
+            collision_time = pygame.time.get_ticks()  # 충돌 시간 기록
             if life == 0:
                 game_over = True
             else:
@@ -188,6 +192,17 @@ while running:
     font = pygame.font.Font(None, 36)
     life_text = font.render(f'Life: {life}', True, BLACK)
     screen.blit(life_text, (10, 10))
+
+    # 충돌 메시지 표시
+    if collision_message:
+        current_time = pygame.time.get_ticks()
+        if current_time - collision_time < 1000:  # 충돌 메시지 1초 동안 표시
+            collision_font = pygame.font.Font(None, 74)
+            collision_text = collision_font.render(collision_message, True, BLACK)
+            collision_rect = collision_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            screen.blit(collision_text, collision_rect)
+        else:
+            collision_message = ""
 
     pygame.display.update()
     clock.tick(60)
