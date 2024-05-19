@@ -15,7 +15,6 @@ FLOOR_COLOR = (144, 228, 144)
 
 # 캐릭터 속성 설정
 character_width, character_height = 50, 50
-character_x, character_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT - character_height * 2
 character_speed = 10
 jump_speed = 20
 gravity = 1
@@ -67,11 +66,22 @@ def check_collision(character, blocks):
             return block
     return None
 
+def reset_game():
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, lives, game_over
+    character_x = SCREEN_WIDTH // 2
+    character_y = SCREEN_HEIGHT - character_height * 2
+    vertical_momentum = 0
+    is_on_ground = True
+    space_pressed = False
+    lives = 3
+    game_over = False
+
+# 초기 설정
+reset_game()
+
 # 게임 루프
 running = True
-vertical_momentum = 0 # 수직 이동 속도
-is_on_ground = True # 바닥에 있는지 여부
-space_pressed = False # 스페이스키 눌림 여부
+lives = 3
 
 while running:
     screen.fill(WHITE)
@@ -88,47 +98,70 @@ while running:
             if event.key == pygame.K_SPACE:
                 space_pressed = False
 
-    # 스페이스 눌리고 바닥에 있으면 점프
-    if space_pressed and is_on_ground:
-        vertical_momentum = -jump_speed
-        is_on_ground = False
+    if not game_over:
+        # 스페이스 눌리고 바닥에 있으면 점프
+        if space_pressed and is_on_ground:
+            vertical_momentum = -jump_speed
+            is_on_ground = False
 
-    # 상하좌우 이동키
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        character_x -= character_speed
-    if keys[pygame.K_RIGHT]:
-        character_x += character_speed
+        # 상하좌우 이동키
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            character_x -= character_speed
+        if keys[pygame.K_RIGHT]:
+            character_x += character_speed
 
-    character_x = max(0, min(SCREEN_WIDTH - character_width, character_x)) # 화면 밖으로 나가지 않게
-    vertical_momentum += gravity
-    character_y += vertical_momentum
-    character_y = min(character_y, floor_y - character_height)
-    
-    # 바닥에 닿으면 수직 속도를 0으로 하고 바닥에 있다고 표시
-    if character_y >= floor_y - character_height:
-        character_y = floor_y - character_height
-        vertical_momentum = 0
-        is_on_ground = True
+        character_x = max(0, min(SCREEN_WIDTH - character_width, character_x)) # 화면 밖으로 나가지 않게
+        vertical_momentum += gravity
+        character_y += vertical_momentum
+        character_y = min(character_y, floor_y - character_height)
 
-    # 바닥
-    pygame.draw.rect(screen, FLOOR_COLOR, (0, floor_y, SCREEN_WIDTH, floor_height))
-
-    # 장애물 이동 및 그리기
-    for obstacle in obstacles:
-        obstacle.x -= character_speed // 2  # 캐릭터 속도의 절반만 이동하도록 설정
-        if obstacle.x + obstacle_width < 0:  # 장애물이 화면을 벗어나면
-            obstacle.x = SCREEN_WIDTH  # 오른쪽에서 다시 나타남
-        pygame.draw.rect(screen, obstacle_color, (obstacle.x, obstacle.y, obstacle_width, obstacle_height))
-
-    # 충돌 검사 및 처리
-    block_collided = check_collision(character_rect, blocks)
-    obstacle_collided = check_collision(character_rect, obstacles)
-    if block_collided or obstacle_collided:
-        if vertical_momentum > 0:
-            character_y = (block_collided.y if block_collided else obstacle_collided.y) - character_height
+        # 바닥에 닿으면 수직 속도를 0으로 하고 바닥에 있다고 표시
+        if character_y >= floor_y - character_height:
+            character_y = floor_y - character_height
             vertical_momentum = 0
             is_on_ground = True
+
+        # 바닥
+        pygame.draw.rect(screen, FLOOR_COLOR, (0, floor_y, SCREEN_WIDTH, floor_height))
+
+        # 장애물 이동 및 그리기
+        for obstacle in obstacles:
+            obstacle.x -= character_speed // 2  # 캐릭터 속도의 절반만 이동하도록 설정
+            if obstacle.x + obstacle_width < 0:  # 장애물이 화면을 벗어나면
+                obstacle.x = SCREEN_WIDTH  # 오른쪽에서 다시 나타남
+            pygame.draw.rect(screen, obstacle_color, (obstacle.x, obstacle.y, obstacle_width, obstacle_height))
+
+        # 충돌 검사 및 처리
+        block_collided = check_collision(character_rect, blocks)
+        obstacle_collided = check_collision(character_rect, obstacles)
+        if block_collided:
+            if vertical_momentum > 0:
+                character_y = block_collided.y - character_height
+                vertical_momentum = 0
+                is_on_ground = True
+        if obstacle_collided:
+            lives -= 1
+            if lives == 0:
+                game_over = True
+            else:
+                # 충돌 시 캐릭터 위치 초기화
+                character_x = SCREEN_WIDTH // 2
+                character_y = SCREEN_HEIGHT - character_height * 2
+                vertical_momentum = 0
+                is_on_ground = True
+
+    else:
+        # 게임 오버 메시지 출력
+        font = pygame.font.Font(None, 74)
+        text = font.render("Game Over", True, RED)
+        text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        screen.blit(text, text_rect)
+
+        # 2초 후 게임 리셋
+        pygame.display.update()
+        pygame.time.wait(2000)
+        reset_game()
 
     # 블록 처리
     for block in blocks:
@@ -136,6 +169,11 @@ while running:
 
     # 캐릭터 처리
     pygame.draw.rect(screen, RED, character_rect)
+
+    # 목숨 표시
+    font = pygame.font.Font(None, 36)
+    lives_text = font.render(f'Lives: {lives}', True, BLACK)
+    screen.blit(lives_text, (10, 10))
 
     pygame.display.update()
     clock.tick(60)
