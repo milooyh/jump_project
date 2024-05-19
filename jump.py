@@ -18,6 +18,9 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 FLOOR_COLOR = (144, 228, 144)
+GREEN = (0, 255, 0)
+LIGHT_GREEN = (144, 238, 144)
+LIGHT_RED = (255, 144, 144)
 
 # 캐릭터 속성 설정
 character_width, character_height = 50, 50
@@ -91,6 +94,10 @@ reset_game()
 running = True
 life = 3
 
+# 게임 오버 화면에 사용자가 선택할 수 있는 두 가지 버튼을 추가
+try_again_button_rect = pygame.Rect(250, 400, 300, 50)
+exit_button_rect = pygame.Rect(250, 500, 300, 50)
+
 while running:
     screen.fill(WHITE)
     character_rect = pygame.Rect(character_x, character_y, character_width, character_height)
@@ -105,6 +112,17 @@ while running:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 space_pressed = False
+        
+        # 마우스 클릭 이벤트 처리
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # 왼쪽 마우스 버튼 클릭
+                if game_over:
+                    if try_again_button_rect.collidepoint(event.pos):
+                        # "Try Again" 버튼 클릭 시 게임 재시작
+                        reset_game()
+                    elif exit_button_rect.collidepoint(event.pos):
+                        # "Exit" 버튼 클릭 시 게임 종료
+                        running = False
 
     if not game_over:
         # 스페이스 눌리고 바닥에 있으면 점프
@@ -168,10 +186,38 @@ while running:
         text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(text, text_rect)
 
-        # 2초 후 게임 리셋
-        pygame.display.update()
-        pygame.time.wait(2000)
-        reset_game()
+        # "Try Again" 버튼 그리기
+        try_again_button_rect = pygame.Rect(250, 400, 300, 50)
+        pygame.draw.rect(screen, GREEN, try_again_button_rect)
+        try_again_font = pygame.font.Font(None, 36)
+        try_again_text = try_again_font.render("Try Again", True, BLACK)
+        try_again_text_rect = try_again_text.get_rect(center=try_again_button_rect.center)
+        screen.blit(try_again_text, try_again_text_rect)
+
+        # "Exit" 버튼 그리기
+        exit_button_rect = pygame.Rect(250, 500, 300, 50)
+        pygame.draw.rect(screen, RED, exit_button_rect)
+        exit_font = pygame.font.Font(None, 36)
+        exit_text = exit_font.render("Exit", True, BLACK)
+        exit_text_rect = exit_text.get_rect(center=exit_button_rect.center)
+        screen.blit(exit_text, exit_text_rect)
+
+        # 마우스가 버튼 위에 있을 때 색상 변경
+        if try_again_button_rect.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, LIGHT_GREEN, try_again_button_rect, border_radius=10)
+        if exit_button_rect.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, LIGHT_RED, exit_button_rect, border_radius=10)
+
+        # 게임 재시작 또는 종료 버튼 클릭 이벤트 처리
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # 왼쪽 마우스 버튼 클릭
+                    if try_again_button_rect.collidepoint(event.pos):
+                        reset_game()
+                    elif exit_button_rect.collidepoint(event.pos):
+                        running = False
 
     # 블록 처리
     for block in blocks:
