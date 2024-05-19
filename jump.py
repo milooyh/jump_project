@@ -2,7 +2,7 @@ import pygame
 import sys
 
 # 화면 크기 설정
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600 #가로 세로
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600 # 가로 세로
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("점프 점프")
 
@@ -10,7 +10,7 @@ pygame.display.set_caption("점프 점프")
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
 FLOOR_COLOR = (144, 228, 144)
 
 # 캐릭터 속성 설정
@@ -22,7 +22,7 @@ gravity = 1
 
 # 바닥 속성 설정
 floor_height = 22  # 바닥 두께
-floor_y = SCREEN_HEIGHT - floor_height 
+floor_y = SCREEN_HEIGHT - floor_height
 
 # 발판 속성 설정
 platform_width, platform_height = 100, 20
@@ -77,7 +77,7 @@ while running:
     screen.fill(WHITE)
     character_rect = pygame.Rect(character_x, character_y, character_width, character_height)
 
-    # 게임 정료 이벤트, 스페이스 키 눌림 이벤트 처리
+    # 게임 종료 이벤트, 스페이스 키 눌림 이벤트 처리
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -100,10 +100,16 @@ while running:
     if keys[pygame.K_RIGHT]:
         character_x += character_speed
 
-    character_x = max(0, min(SCREEN_WIDTH - character_width, character_x)) # 화면 밖으로 나가지 않게게
+    character_x = max(0, min(SCREEN_WIDTH - character_width, character_x)) # 화면 밖으로 나가지 않게
     vertical_momentum += gravity
     character_y += vertical_momentum
     character_y = min(character_y, floor_y - character_height)
+    
+    # 바닥에 닿으면 수직 속도를 0으로 하고 바닥에 있다고 표시
+    if character_y >= floor_y - character_height:
+        character_y = floor_y - character_height
+        vertical_momentum = 0
+        is_on_ground = True
 
     # 바닥
     pygame.draw.rect(screen, FLOOR_COLOR, (0, floor_y, SCREEN_WIDTH, floor_height))
@@ -118,10 +124,10 @@ while running:
     obstacle_collided = check_collision(character_rect, obstacles)
     if block_collided or obstacle_collided:
         if vertical_momentum > 0:
-            character_y = max(block_collided.y, obstacle_collided.y) - character_height
+            character_y = (block_collided.y if block_collided else obstacle_collided.y) - character_height
             vertical_momentum = 0
             is_on_ground = True
-            
+
     # 블록 처리
     for block in blocks:
         pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
