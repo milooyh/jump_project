@@ -114,6 +114,8 @@ last_platform_time = pygame.time.get_ticks()
 # 화면 이동 관련 변수 초기화
 screen_move_speed = character_speed
 screen_move_threshold = SCREEN_WIDTH // 2
+screen_move_height = SCREEN_HEIGHT // 4  # 캐릭터가 점프할 때마다 화면을 이동시킬 높이
+
 
 # 게임 루프
 running = True
@@ -250,6 +252,14 @@ while running:
             else:
                 collision_message = ""
 
+        # 캐릭터의 y 위치가 화면 이동 높이에 도달하면 화면을 위로 이동시킴
+        if character_y < screen_move_height:
+            for block in blocks:
+                block.y += screen_move_speed
+            for obstacle in obstacles:
+                obstacle.y += screen_move_speed
+            character_y += screen_move_speed
+            
     else:
         # 게임 오버 메시지 출력
         font = pygame.font.Font(None, 74)
