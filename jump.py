@@ -29,6 +29,10 @@ character_speed = 6
 jump_speed = 20
 gravity = 1.4
 
+# 상수 정의
+LEFT_EDGE = 0
+RIGHT_EDGE = SCREEN_WIDTH - character_width
+
 # 바닥 속성 설정
 floor_height = 22  # 바닥 두께
 floor_y = SCREEN_HEIGHT - floor_height
@@ -81,17 +85,23 @@ def add_new_platform():
     x = random.randint(0, SCREEN_WIDTH - platform_width)
     y = random.randint(0, SCREEN_HEIGHT // 2)
     blocks.append(Block(x, y))
+    
+# 캐릭터 초기 위치 설정 함수
+def set_character_initial_position():
+    global character_x, character_y
+    character_x = SCREEN_WIDTH // 2
+    character_y = SCREEN_HEIGHT - character_height * 2
+    print("Character Initial Position:", character_x, character_y)
 
 
 # 게임 초기화 함수
 def reset_game():
     global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time
-    character_x = SCREEN_WIDTH // 2
-    character_y = SCREEN_HEIGHT - character_height * 2
+    set_character_initial_position()
     vertical_momentum = 0
     is_on_ground = True
     space_pressed = False
-    life = 3  # Reset life to 3 when restarting the game
+    life = 3
     game_over = False
     collision_message = ""
     collision_time = 0
@@ -100,6 +110,10 @@ def reset_game():
 reset_game()
 new_platform_interval = 3000  # 3초마다 새로운 발판 추가
 last_platform_time = pygame.time.get_ticks()
+
+# 화면 이동 관련 변수 초기화
+screen_move_speed = character_speed
+screen_move_threshold = SCREEN_WIDTH // 2
 
 # 게임 루프
 running = True
@@ -143,13 +157,22 @@ while running:
             vertical_momentum = -jump_speed
             is_on_ground = False
 
-        # 상하좌우 이동키
+        # 상하좌우 이동키 처리
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            character_x -= character_speed
+            character_x = max(LEFT_EDGE, character_x - character_speed)
         if keys[pygame.K_RIGHT]:
-            character_x += character_speed
+            character_x = min(RIGHT_EDGE, character_x + character_speed)
 
+        # 화면 이동 관련 처리
+        if character_x > screen_move_threshold:
+            for block in blocks:
+                block.x -= screen_move_speed
+            for obstacle in obstacles:
+                obstacle.x -= screen_move_speed
+            character_x -= screen_move_speed
+
+        character_x = max(0, min(SCREEN_WIDTH - character_width, character_x))  # 화면 밖으로 나
         character_x = max(0, min(SCREEN_WIDTH - character_width, character_x))  # 화면 밖으로 나가지 않게
         vertical_momentum += gravity
         character_y += vertical_momentum
@@ -183,14 +206,18 @@ while running:
             life -= 1
             collision_message = f"Life: {life}"
             collision_time = pygame.time.get_ticks()  # 충돌 시간 기록
-            if life == 0:
-                game_over = True
+            if life <= 0:
+                # 게임 완전 리셋
+                blocks = [Block(x, y) for x, y in blocks_positions]
+                obstacles = [Block(x, y) for x, y in obstacles_positions]
+                reset_game()
             else:
                 # 충돌 시 캐릭터 위치 초기화
-                character_x = SCREEN_WIDTH // 2
-                character_y = SCREEN_HEIGHT - character_height * 2
+                set_character_initial_position()
                 vertical_momentum = 0
                 is_on_ground = True
+                blocks = [Block(x, y) for x, y in blocks_positions]
+                obstacles = [Block(x, y) for x, y in obstacles_positions]
     
         # 블록 처리
         for block in blocks:
@@ -266,4 +293,3 @@ while running:
 
 pygame.quit()
 sys.exit()
-
