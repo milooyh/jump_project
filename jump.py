@@ -23,10 +23,10 @@ LIGHT_GREEN = (144, 238, 144)
 LIGHT_RED = (255, 144, 144)
 
 # 캐릭터 속성 설정
-character_width, character_height = 50, 50
-character_speed = 10
+character_width, character_height = 20, 20
+character_speed = 6
 jump_speed = 20
-gravity = 1
+gravity = 1.4
 
 # 바닥 속성 설정
 floor_height = 22  # 바닥 두께
@@ -82,7 +82,7 @@ def reset_game():
     vertical_momentum = 0
     is_on_ground = True
     space_pressed = False
-    life = 3
+    life = 3  # Reset life to 3 when restarting the game
     game_over = False
     collision_message = ""
     collision_time = 0
@@ -233,8 +233,20 @@ while running:
         if exit_button_rect.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(screen, LIGHT_RED, exit_button_rect, border_radius=10)
 
+        # 게임 재시작 또는 종료 버튼 클릭 이벤트 처리
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # 왼쪽 마우스 버튼 클릭
+                    if try_again_button_rect.collidepoint(event.pos):
+                        reset_game()
+                    elif exit_button_rect.collidepoint(event.pos):
+                        running = False
+
     pygame.display.update()
     clock.tick(60)
 
 pygame.quit()
 sys.exit()
+
