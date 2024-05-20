@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+from item import Item
 
 # Pygame 초기화
 pygame.init()
@@ -44,6 +45,14 @@ platform_color = BLUE
 # 장애물 속성 설정
 obstacle_width, obstacle_height = 80, 30
 obstacle_color = BLACK
+
+# 아이템 속성 설정
+ITEM_WIDTH, ITEM_HEIGHT = 20, 20
+ITEM_COLORS = {
+    "life": GREEN,
+    "jump": BLUE,
+    "speed": RED
+}
 
 # 블록 좌표 설정
 blocks_positions = [
@@ -91,7 +100,7 @@ def set_character_initial_position():
     global character_x, character_y
     character_x = SCREEN_WIDTH // 2
     character_y = SCREEN_HEIGHT - character_height * 2
-    print("Character Initial Position:", character_x, character_y)
+    life = 3  # 캐릭터의 초기 생명력
 
 
 # 게임 초기화 함수
@@ -105,18 +114,51 @@ def reset_game():
     game_over = False
     collision_message = ""
     collision_time = 0
-
+    life = 3  # 게임 재시작 시 생명력 초기화
+    
 # 초기 설정
 reset_game()
 new_platform_interval = 3000  # 3초마다 새로운 발판 추가
 last_platform_time = pygame.time.get_ticks()
+new_item_interval = 5000  # 5초마다 새로운 아이템 추가
+last_item_time = pygame.time.get_ticks()
 
 # 화면 이동 관련 변수 초기화
 screen_move_speed = character_speed
 screen_move_threshold = SCREEN_WIDTH // 2
 screen_move_height = SCREEN_HEIGHT // 4  # 캐릭터가 점프할 때마다 화면을 이동시킬 높이
 
+# 아이템 리스트 초기화
+items = []
 
+# 아이템 생성 함수
+def spawn_item():
+    x = random.randint(0, SCREEN_WIDTH - ITEM_WIDTH)
+    y = random.randint(0, SCREEN_HEIGHT - ITEM_HEIGHT)
+    item_type = random.choice(["life", "jump", "speed"])
+    color = ITEM_COLORS[item_type]
+    items.append(Item(x, y, ITEM_WIDTH, ITEM_HEIGHT, item_type, color))
+
+# 아이템 그리기 함수
+def draw_items():
+    for item in items:
+        pygame.draw.rect(screen, item.color, (item.x, item.y, item.width, item.height))
+
+# 아이템 효과 적용 함수
+def apply_item_effects():
+    global life, jump_speed, character_speed
+    for item in items:
+        if character_rect.colliderect(item):
+            if item.item_type == "life":
+                life += 1
+            elif item.item_type == "jump":
+                jump_speed += 10
+            elif item.item_type == "speed":
+                character_speed += 10
+            items.remove(item)  # 아이템 효과를 적용한 후에는 리스트에서 제거
+
+
+            
 # 게임 루프
 running = True
 
@@ -198,6 +240,14 @@ while running:
                 obstacle.x = SCREEN_WIDTH  # 오른쪽에서 다시 나타남
             pygame.draw.rect(screen, obstacle_color, (obstacle.x, obstacle.y, obstacle_width, obstacle_height))
 
+        # 아이템 생성 및 관리
+        current_time = pygame.time.get_ticks()
+        if current_time - last_item_time > new_item_interval:
+            spawn_item()
+            last_item_time = current_time
+
+        draw_items()
+        apply_item_effects(character_rect)
         # 충돌 검사 및 처리
         block_collided = check_collision(character_rect, blocks)
         obstacle_collided = check_collision(character_rect, obstacles)
