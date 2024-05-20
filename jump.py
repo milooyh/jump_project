@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 # Pygame 초기화
 pygame.init()
@@ -75,6 +76,14 @@ def check_collision(character, blocks):
             return block
     return None
 
+# 새로운 발판 추가 함수
+def add_new_platform():
+    x = random.randint(0, SCREEN_WIDTH - platform_width)
+    y = random.randint(0, SCREEN_HEIGHT // 2)
+    blocks.append(Block(x, y))
+
+
+# 게임 초기화 함수
 def reset_game():
     global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time
     character_x = SCREEN_WIDTH // 2
@@ -89,6 +98,8 @@ def reset_game():
 
 # 초기 설정
 reset_game()
+new_platform_interval = 3000  # 3초마다 새로운 발판 추가
+last_platform_time = pygame.time.get_ticks()
 
 # 게임 루프
 running = True
@@ -121,6 +132,12 @@ while running:
                         running = False
 
     if not game_over:
+        # 일정 간격으로 새로운 발판 추가
+        current_time = pygame.time.get_ticks()
+        if current_time - last_platform_time > new_platform_interval:
+            add_new_platform()
+            last_platform_time = current_time
+            
         # 스페이스 눌리고 바닥에 있으면 점프
         if space_pressed and is_on_ground:
             vertical_momentum = -jump_speed
@@ -174,7 +191,7 @@ while running:
                 character_y = SCREEN_HEIGHT - character_height * 2
                 vertical_momentum = 0
                 is_on_ground = True
-
+    
         # 블록 처리
         for block in blocks:
             pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
