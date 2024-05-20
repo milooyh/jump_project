@@ -137,17 +137,19 @@ while running:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 space_pressed = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # 왼쪽 마우스 버튼 클릭
-                if game_over:
-                    if try_again_button_rect.collidepoint(event.pos):
-                        # "Try Again" 버튼 클릭 시 게임 재시작
-                        reset_game()
-                    elif exit_button_rect.collidepoint(event.pos):
-                        # "Exit" 버튼 클릭 시 게임 종료
-                        running = False
 
     if not game_over:
+        # 게임 진행 중일 때의 이벤트 처리
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # 왼쪽 마우스 버튼 클릭
+                    if game_over:
+                        if try_again_button_rect.collidepoint(event.pos):
+                            reset_game()
+                        elif exit_button_rect.collidepoint(event.pos):
+                            running = False
+
+
         # 일정 간격으로 새로운 발판 추가
         current_time = pygame.time.get_ticks()
         if current_time - last_platform_time > new_platform_interval:
@@ -208,11 +210,8 @@ while running:
             life -= 1
             collision_message = f"Life: {life}"
             collision_time = pygame.time.get_ticks()  # 충돌 시간 기록
-            if life <= 0:
-                # 게임 완전 리셋
-                blocks = [Block(x, y) for x, y in blocks_positions]
-                obstacles = [Block(x, y) for x, y in obstacles_positions]
-                reset_game()
+            if life == 0:
+                game_over = True  # life가 0이 되면 game over 상태로 변경
             else:
                 # 충돌 시 캐릭터 위치 초기화
                 set_character_initial_position()
