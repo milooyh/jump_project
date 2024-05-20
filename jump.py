@@ -6,7 +6,7 @@ pygame.init()
 pygame.font.init()
 
 # 화면 크기 설정
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600 # 가로 세로
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600  # 가로 세로
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("점프 점프")
 
@@ -40,7 +40,7 @@ platform_color = BLUE
 obstacle_width, obstacle_height = 80, 30
 obstacle_color = BLACK
 
-# 블록 좌표 설정 
+# 블록 좌표 설정
 blocks_positions = [
     (100, 500),
     (300, 400),
@@ -66,7 +66,7 @@ class Block:
 blocks = [Block(x, y) for x, y in blocks_positions]
 obstacles = [Block(x, y) for x, y in obstacles_positions]
 
-clock = pygame.time.Clock() # 게임 프레임 속도 제어
+clock = pygame.time.Clock()  # 게임 프레임 속도 제어
 
 # 충돌 감지
 def check_collision(character, blocks):
@@ -92,7 +92,6 @@ reset_game()
 
 # 게임 루프
 running = True
-life = 3
 
 # 게임 오버 화면에 사용자가 선택할 수 있는 두 가지 버튼을 추가
 try_again_button_rect = pygame.Rect(250, 400, 300, 50)
@@ -102,7 +101,6 @@ while running:
     screen.fill(WHITE)
     character_rect = pygame.Rect(character_x, character_y, character_width, character_height)
 
-    # 게임 종료 이벤트, 스페이스 키 눌림 이벤트 처리
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -112,8 +110,6 @@ while running:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 space_pressed = False
-        
-        # 마우스 클릭 이벤트 처리
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # 왼쪽 마우스 버튼 클릭
                 if game_over:
@@ -137,7 +133,7 @@ while running:
         if keys[pygame.K_RIGHT]:
             character_x += character_speed
 
-        character_x = max(0, min(SCREEN_WIDTH - character_width, character_x)) # 화면 밖으로 나가지 않게
+        character_x = max(0, min(SCREEN_WIDTH - character_width, character_x))  # 화면 밖으로 나가지 않게
         vertical_momentum += gravity
         character_y += vertical_momentum
         character_y = min(character_y, floor_y - character_height)
@@ -168,7 +164,7 @@ while running:
                 is_on_ground = True
         if obstacle_collided:
             life -= 1
-            collision_message = "life -1"
+            collision_message = f"Life: {life}"
             collision_time = pygame.time.get_ticks()  # 충돌 시간 기록
             if life == 0:
                 game_over = True
@@ -179,6 +175,37 @@ while running:
                 vertical_momentum = 0
                 is_on_ground = True
 
+        # 블록 처리
+        for block in blocks:
+            pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
+
+        # 목숨에 따라 캐릭터 색상 변경
+        if life == 3:
+            character_color = RED
+        elif life == 2:
+            character_color = ORANGE
+        elif life == 1:
+            character_color = YELLOW
+
+        # 캐릭터 처리
+        pygame.draw.rect(screen, character_color, character_rect)
+
+        # 목숨 표시
+        font = pygame.font.Font(None, 36)
+        life_text = font.render(f'Life: {life}', True, BLACK)
+        screen.blit(life_text, (10, 10))
+
+        # 충돌 메시지 표시
+        if collision_message:
+            current_time = pygame.time.get_ticks()
+            if current_time - collision_time < 1000:  # 충돌 메시지 1초 동안 표시
+                collision_font = pygame.font.Font(None, 74)
+                collision_text = collision_font.render(collision_message, True, BLACK)
+                collision_rect = collision_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+                screen.blit(collision_text, collision_rect)
+            else:
+                collision_message = ""
+
     else:
         # 게임 오버 메시지 출력
         font = pygame.font.Font(None, 74)
@@ -187,7 +214,6 @@ while running:
         screen.blit(text, text_rect)
 
         # "Try Again" 버튼 그리기
-        try_again_button_rect = pygame.Rect(250, 400, 300, 50)
         pygame.draw.rect(screen, GREEN, try_again_button_rect)
         try_again_font = pygame.font.Font(None, 36)
         try_again_text = try_again_font.render("Try Again", True, BLACK)
@@ -195,7 +221,6 @@ while running:
         screen.blit(try_again_text, try_again_text_rect)
 
         # "Exit" 버튼 그리기
-        exit_button_rect = pygame.Rect(250, 500, 300, 50)
         pygame.draw.rect(screen, RED, exit_button_rect)
         exit_font = pygame.font.Font(None, 36)
         exit_text = exit_font.render("Exit", True, BLACK)
@@ -207,48 +232,6 @@ while running:
             pygame.draw.rect(screen, LIGHT_GREEN, try_again_button_rect, border_radius=10)
         if exit_button_rect.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(screen, LIGHT_RED, exit_button_rect, border_radius=10)
-
-        # 게임 재시작 또는 종료 버튼 클릭 이벤트 처리
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # 왼쪽 마우스 버튼 클릭
-                    if try_again_button_rect.collidepoint(event.pos):
-                        reset_game()
-                    elif exit_button_rect.collidepoint(event.pos):
-                        running = False
-
-    # 블록 처리
-    for block in blocks:
-        pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
-
-    # 목숨에 따라 캐릭터 색상 변경
-    if life == 3:
-        character_color = RED
-    elif life == 2:
-        character_color = ORANGE
-    elif life == 1:
-        character_color = YELLOW
-
-    # 캐릭터 처리
-    pygame.draw.rect(screen, character_color, character_rect)
-
-    # 목숨 표시
-    font = pygame.font.Font(None, 36)
-    life_text = font.render(f'Life: {life}', True, BLACK)
-    screen.blit(life_text, (10, 10))
-
-    # 충돌 메시지 표시
-    if collision_message:
-        current_time = pygame.time.get_ticks()
-        if current_time - collision_time < 1000:  # 충돌 메시지 1초 동안 표시
-            collision_font = pygame.font.Font(None, 74)
-            collision_text = collision_font.render(collision_message, True, BLACK)
-            collision_rect = collision_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-            screen.blit(collision_text, collision_rect)
-        else:
-            collision_message = ""
 
     pygame.display.update()
     clock.tick(60)
