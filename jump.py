@@ -144,19 +144,18 @@ def draw_items():
     for item in items:
         pygame.draw.rect(screen, item.color, (item.x, item.y, item.width, item.height))
 
-# 아이템 효과 적용 함수
-def apply_item_effects():
-    global life, jump_speed, character_speed
-    for item in items:
-        if character_rect.colliderect(item):
-            if item.item_type == "life":
-                life += 1
-            elif item.item_type == "jump":
-                jump_speed += 10
-            elif item.item_type == "speed":
-                character_speed += 10
-            items.remove(item)  # 아이템 효과를 적용한 후에는 리스트에서 제거
-
+# # 아이템 효과 적용 함수
+# def apply_item_effects():
+#     global life, jump_speed, character_speed
+#     for item in items:
+#         if character_rect.colliderect(item):
+#             if item.item_type == "life":
+#                 life += 1
+#             elif item.item_type == "jump":
+#                 jump_speed += 10
+#             elif item.item_type == "speed":
+#                 character_speed += 10
+#             items.remove(item)  # 아이템 효과를 적용한 후에는 리스트에서 제거
 
             
 # 게임 루프
@@ -247,7 +246,7 @@ while running:
             last_item_time = current_time
 
         draw_items()
-        apply_item_effects(character_rect)
+        # apply_item_effects(character_rect)
         # 충돌 검사 및 처리
         block_collided = check_collision(character_rect, blocks)
         obstacle_collided = check_collision(character_rect, obstacles)
