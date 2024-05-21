@@ -132,13 +132,18 @@ screen_move_height = SCREEN_HEIGHT // 4  # 캐릭터가 점프할 때마다 화�
 # 아이템 리스트 초기화
 items = []
 
-# 아이템 생성 함수
+# 아이템 생성 함수 
 def spawn_item():
-    x = random.randint(0, SCREEN_WIDTH - ITEM_WIDTH)
-    y = random.randint(0, SCREEN_HEIGHT - ITEM_HEIGHT)
+    # 발판 중 랜덤하게 선택
+    platform = random.choice(blocks)
+    # 발판의 좌표를 기준으로 아이템 위치 조정
+    x = random.randint(platform.x, platform.x + platform_width - ITEM_WIDTH)
+    y = platform.y - ITEM_HEIGHT  # 발판 위에 위치하도록 조정
     item_type = random.choice(["life", "jump", "speed"])
     color = ITEM_COLORS[item_type]
     items.append(Item(x, y, ITEM_WIDTH, ITEM_HEIGHT, item_type, color))
+
+
 
 # 아이템 그리기 함수
 def draw_items():
