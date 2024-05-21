@@ -103,9 +103,8 @@ def set_character_initial_position():
     life = 3  # 캐릭터의 초기 생명력
 
 
-# 게임 초기화 함수
 def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time, item_effects, effect_start_time
     set_character_initial_position()
     vertical_momentum = 0
     is_on_ground = True
@@ -114,7 +113,9 @@ def reset_game():
     game_over = False
     collision_message = ""
     collision_time = 0
-    life = 3  # 게임 재시작 시 생명력 초기화
+    item_effects = {}  # 아이텀 효과 초기화
+    effect_start_time = {}  # 효과 시작 시간 초기화
+
     
 # 초기 설정
 reset_game()
@@ -144,18 +145,35 @@ def draw_items():
     for item in items:
         pygame.draw.rect(screen, item.color, (item.x, item.y, item.width, item.height))
 
-# # 아이템 효과 적용 함수
-# def apply_item_effects():
-#     global life, jump_speed, character_speed
-#     for item in items:
-#         if character_rect.colliderect(item):
-#             if item.item_type == "life":
-#                 life += 1
-#             elif item.item_type == "jump":
-#                 jump_speed += 10
-#             elif item.item_type == "speed":
-#                 character_speed += 10
-#             items.remove(item)  # 아이템 효과를 적용한 후에는 리스트에서 제거
+# 아이템 효과 적용 함수
+def apply_item_effects(character_rect):
+    global life, jump_speed, character_speed, item_effects, effect_start_time
+    for item in items:
+        if character_rect.colliderect(item.rect):
+            if item.item_type == "life":
+                life += 1
+            elif item.item_type == "jump":
+                jump_speed += 10
+                item_effects["jump"] = pygame.time.get_ticks()  # 효과 시작 시간 기록
+                effect_start_time["jump"] = pygame.time.get_ticks()
+            elif item.item_type == "speed":
+                character_speed += 10
+                item_effects["speed"] = pygame.time.get_ticks()  # 효과 시작 시간 기록
+                effect_start_time["speed"] = pygame.time.get_ticks()
+            items.remove(item)  # 아이템 효과를 적용한 후에는 리스트에서 제거
+
+# 아이템 효과 해제 함수
+def remove_item_effects():
+    global jump_speed, character_speed, item_effects, effect_start_time
+    current_time = pygame.time.get_ticks()
+    for effect in list(item_effects):
+        if current_time - effect_start_time[effect] > 10000:  # 효과가 10초 지속되도록
+            if effect == "jump":
+                jump_speed -= 10
+            elif effect == "speed":
+                character_speed -= 10
+            del item_effects[effect]  # 효과 제거
+            del effect_start_time[effect]
 
             
 # 게임 루프
@@ -246,7 +264,9 @@ while running:
             last_item_time = current_time
 
         draw_items()
-        # apply_item_effects(character_rect)
+        apply_item_effects(character_rect)
+        remove_item_effects = current_time
+        
         # 충돌 검사 및 처리
         block_collided = check_collision(character_rect, blocks)
         obstacle_collided = check_collision(character_rect, obstacles)
