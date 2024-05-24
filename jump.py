@@ -154,11 +154,6 @@ def spawn_item():
     items.append(Item(item_x, item_y, ITEM_WIDTH, ITEM_HEIGHT, item_type, color))
 
 
-
-
-
-
-
 # 아이템 그리기 함수
 def draw_items():
     for item in items:

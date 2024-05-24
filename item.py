@@ -9,3 +9,4 @@ class Item:
         self.item_type = item_type
         self.color = color
         self.rect = pygame.Rect(x, y, width, height)
+
