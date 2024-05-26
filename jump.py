@@ -23,6 +23,8 @@ FLOOR_COLOR = (144, 228, 144)
 GREEN = (0, 255, 0)
 LIGHT_GREEN = (144, 238, 144)
 LIGHT_RED = (255, 144, 144)
+PORTAL_COLOR = (255, 0, 255)
+
 
 # 캐릭터 속성 설정
 character_width, character_height = 20, 20
@@ -76,6 +78,15 @@ class Block:
         self.x = x
         self.y = y
 
+# 포털 클래스 정의
+class Portal:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.width = 50
+        self.height = 50
+        self.rect = pygame.Rect(x, y, self.width, self.height)
+
 # 블록, 장애물 리스트 초기화
 blocks = [Block(x, y) for x, y in blocks_positions]
 obstacles = [Block(x, y) for x, y in obstacles_positions]
@@ -104,7 +115,7 @@ def set_character_initial_position():
 
 
 def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time, item_effects, effect_start_time
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time, item_effects, effect_start_time, portal
     set_character_initial_position()
     vertical_momentum = 0
     is_on_ground = True
@@ -115,6 +126,7 @@ def reset_game():
     collision_time = 0
     item_effects = {}  # 아이텀 효과 초기화
     effect_start_time = {}  # 효과 시작 시간 초기화
+    portal = None # 포털 초기화
 
     
 # 초기 설정
@@ -304,7 +316,17 @@ while running:
                 is_on_ground = True
                 blocks = [Block(x, y) for x, y in blocks_positions]
                 obstacles = [Block(x, y) for x, y in obstacles_positions]
-    
+
+        # 포털 생성 및 그리기
+        if not portal and random.random() < 0.01:  # 포털 생성 확률 조정
+            portal = Portal(random.randint(0, SCREEN_WIDTH - 50), random.randint(0, SCREEN_HEIGHT - 50))
+        if portal:
+            pygame.draw.rect(screen, PORTAL_COLOR, portal.rect)
+
+        # 포털 충돌 검사
+        if portal and character_rect.colliderect(portal.rect):
+            game_over = True  # 포털에 도달하면 게임 종료
+            
         # 블록 처리
         for block in blocks:
             pygame.draw.rect(screen, platform_color, (block.x, block.y, platform_width, platform_height))
