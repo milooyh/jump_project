@@ -79,12 +79,12 @@ class Block:
 # 포털 클래스 정의
 class Portal:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
         self.width = 50
         self.height = 50
-        self.rect = pygame.Rect(x, y, self.width, self.height)
-
+        self.x = SCREEN_WIDTH - self.width - 20  # 화면 오른쪽에 고정된 x 좌표
+        self.y = 20  # 화면 상단에 고정된 y 좌표
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        
 # 블록, 장애물 리스트 초기화
 blocks = [Block(x, y) for x, y in blocks_positions]
 obstacles = [Block(x, y) for x, y in obstacles_positions]
@@ -113,18 +113,25 @@ def set_character_initial_position():
 
 
 def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_over, collision_message, collision_time, item_effects, effect_start_time, portal
+    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_clear, game_over, collision_message, collision_time, item_effects, effect_start_time, portal
     set_character_initial_position()
     vertical_momentum = 0
     is_on_ground = True
     space_pressed = False
     life = 3
     game_over = False
+    game_clear = False
     collision_message = ""
     collision_time = 0
     item_effects = {}  # 아이텀 효과 초기화
     effect_start_time = {}  # 효과 시작 시간 초기화
-    portal = None # 포털 초기화
+    
+    # 포털 생성
+    if len(blocks) > 0:
+        last_block = blocks[-1]
+        portal = Portal(last_block.x, last_block.y - 70)  # 마지막 발판 위에 포털 생성
+    else:
+        portal = None  # 발판이 없으면 포털 생성하지 않음
 
     
 # 초기 설정
@@ -208,6 +215,9 @@ running = True
 # 게임 오버 화면에 사용자가 선택할 수 있는 두 가지 버튼을 추가
 try_again_button_rect = pygame.Rect(250, 400, 300, 50)
 exit_button_rect = pygame.Rect(250, 500, 300, 50)
+
+# 클리어 화면에 사용자가 선택할 수 있는 두 가지 버튼 추가
+next_stage_button_rect = pygame.Rect(250, 400, 300, 50)
 
 while running:
     screen.fill(WHITE)
@@ -315,15 +325,26 @@ while running:
                 blocks = [Block(x, y) for x, y in blocks_positions]
                 obstacles = [Block(x, y) for x, y in obstacles_positions]
 
-        # 포털 생성 및 그리기
-        if not portal and random.random() < 0.01:  # 포털 생성 확률 조정
-            portal = Portal(random.randint(0, SCREEN_WIDTH - 50), random.randint(0, SCREEN_HEIGHT - 50))
+        # 포털 생성 및 충돌 처리
+        if portal is None and len(blocks) > 0 and pygame.time.get_ticks() - last_platform_time > new_platform_interval:
+            portal = Portal(blocks[-1].x, blocks[-1].y - 70)  # 포털을 마지막 발판 위에 생성
+            last_platform_time = pygame.time.get_ticks()
+
+        if portal:
+            if character_x > screen_move_threshold:
+                dx = character_x - screen_move_threshold
+                portal.x -= dx
+                
+            if character_y < screen_move_height:
+                dy = screen_move_height - character_y
+                portal.y += dy
+
+        if portal and game_clear:
+            if character_rect.colliderect(portal.rect):
+                game_clear = True  # 포털에 도달하면 게임 클리어
+        
         if portal:
             pygame.draw.rect(screen, PORTAL_COLOR, portal.rect)
-
-        # 포털 충돌 검사
-        if portal and character_rect.colliderect(portal.rect):
-            game_over = True  # 포털에 도달하면 게임 종료
             
         # 블록 처리
         for block in blocks:
@@ -364,7 +385,42 @@ while running:
                 obstacle.y += screen_move_speed
             character_y += screen_move_speed
             
-    else:
+    # 게임 클리어 시 클리어 화면 표시
+    if game_clear:
+        screen.fill(WHITE)
+        font = pygame.font.Font(None, 74)
+        text = font.render("Stage Clear!", True, GREEN)
+        screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - 100))
+
+        pygame.draw.rect(screen, GREEN, next_stage_button_rect)
+        pygame.draw.rect(screen, RED, exit_button_rect)
+
+        font = pygame.font.Font(None, 36)
+        next_stage_text = font.render("Next Stage", True, BLACK)
+        screen.blit(next_stage_text, (next_stage_button_rect.x + (next_stage_button_rect.width - next_stage_text.get_width()) // 2,
+                                      next_stage_button_rect.y + (next_stage_button_rect.height - next_stage_text.get_height()) // 2))
+
+        exit_text = font.render("Exit", True, BLACK)
+        screen.blit(exit_text, (exit_button_rect.x + (exit_button_rect.width - exit_text.get_width()) // 2,
+                                exit_button_rect.y + (exit_button_rect.height - exit_text.get_height()) // 2))
+
+        # 마우스가 버튼 위에 있을 때 색상 변경
+        if next_stage_button_rect.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, LIGHT_GREEN, next_stage_button_rect, border_radius=10)
+        if exit_button_rect.collidepoint(pygame.mouse.get_pos()):
+            pygame.draw.rect(screen, LIGHT_RED, exit_button_rect, border_radius=10)
+            
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if next_stage_button_rect.collidepoint(event.pos):
+                    reset_game()  # 게임 리셋하여 다음 스테이지로 이동
+                    # 다음 스테이지 설정 (추가적인 로직 필요)
+                if exit_button_rect.collidepoint(event.pos):
+                    running = False
+            
+    if game_over:
         # 게임 오버 메시지 출력
         font = pygame.font.Font(None, 74)
         text = font.render("Game Over", True, RED)
