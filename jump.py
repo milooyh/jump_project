@@ -1,7 +1,6 @@
 import pygame
 import sys
 import random
-# from item import Item
 
 # Pygame 초기화
 pygame.init()
@@ -24,7 +23,6 @@ GREEN = (0, 255, 0)
 LIGHT_GREEN = (144, 238, 144)
 LIGHT_RED = (255, 144, 144)
 PORTAL_COLOR = (255, 0, 255)
-
 
 # 캐릭터 속성 설정
 character_width, character_height = 20, 20
