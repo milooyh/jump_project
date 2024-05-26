@@ -133,6 +133,23 @@ def reset_game():
     else:
         portal = None  # 발판이 없으면 포털 생성하지 않음
 
+# 게임 시작 페이지 표시 함수
+def show_start_screen():
+    screen.fill(WHITE)
+    font = pygame.font.Font(None, 64)
+    text = font.render("Press SPACE to Start", True, BLACK)
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    waiting = False
     
 # 초기 설정
 reset_game()
@@ -208,6 +225,9 @@ class Block:
 #             del item_effects[effect]  # 효과 제거
 #             del effect_start_time[effect]
 
+
+# 게임 시작 페이지 표시
+show_start_screen()
             
 # 게임 루프
 running = True
