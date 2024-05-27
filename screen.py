@@ -9,6 +9,7 @@ class Screen:
     def __init__(self):
         pass
 
+    # 시작 화면
     @staticmethod
     def show_start_screen(screen):
         print('show_start_screen 함수 호출')
@@ -21,6 +22,7 @@ class Screen:
         pygame.display.update()
         Screen.wait_for_space()
 
+    # 게임 대기
     @staticmethod
     def wait_for_space():
         print('wait_for_space 함수 호출')
@@ -33,6 +35,7 @@ class Screen:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     waiting = False
 
+    # 게임 클리어
     @staticmethod
     def show_clear_screen(screen):
         print('show_clear_screen 함수 호출')
@@ -45,6 +48,7 @@ class Screen:
         pygame.display.update()
         pygame.time.wait(2000)
 
+    # 게임 오버
     @staticmethod
     def show_game_over_screen(screen):
         print('show_game_over_screen 함수 호출')
@@ -57,6 +61,7 @@ class Screen:
         pygame.display.update()
         pygame.time.wait(2000)
 
+    # 화면 요소 그리기
     @staticmethod
     def draw_game_elements(screen, character_rect):
         print('draw_game_elements 함수 호출')

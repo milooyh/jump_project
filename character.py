@@ -22,10 +22,10 @@ class Character:
         self.blocks = blocks
         self.obstacles = obstacles
 
+    # 장애물에 닿으면 다시 돌아와라
     def set_initial_position(self):
         self.x = SCREEN_WIDTH // 2
         self.y = SCREEN_HEIGHT - self.height * 2
-        self.life = 3
 
     def update_game_state(self):
         current_time = pygame.time.get_ticks()
@@ -46,7 +46,6 @@ class Character:
 
         if self.x > SCREEN_WIDTH // 2:
             dx = self.x - SCREEN_WIDTH // 2
-            Screen.move_screen(dx)
 
         self.x = max(0, min(SCREEN_WIDTH - self.width, self.x))
         self.vertical_momentum += self.gravity
@@ -69,6 +68,7 @@ class Character:
         if obstacle_collided:
             print("장애물과 충돌 여부:", obstacle_collided)
             self.life -= 1
+            print('라이프 개수', self.life)
             if self.life == 0:
                 self.game_over = True
             else:
@@ -76,13 +76,20 @@ class Character:
                 self.vertical_momentum = 0
                 self.is_on_ground = True
 
+
         #if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
         #    self.game_clear = True
 
+    # 장애물, 발판, 라이프 개수 그리기
     def draw_game_elements(self, screen, blocks, obstacles):
         pygame.draw.rect(screen, RED, pygame.Rect(self.x, self.y, self.width, self.height))
         for block in blocks:
             block.draw(screen)
         for obstacle in obstacles:
             obstacle.draw(screen)
+        
+        font = pygame.font.Font(None, 36)
+        text = font.render(f"Life: {self.life}", True, BLACK)
+        screen.blit(text, (10, 10))
+
 

@@ -8,6 +8,8 @@ from block import Block
 from obstacle import Obstacle
 
 class GameManager:
+    
+    # 게임 초기화 함수
     def __init__(self):
         pygame.init()
         pygame.font.init()
@@ -27,6 +29,7 @@ class GameManager:
         self.obstacles = [Obstacle(x, y) for x, y in obstacles_positions]  # 장애물 객체 리스트 생성
         self.character = Character(self.blocks, self.obstacles)  # 블록과 장애물 리스트를 전달
 
+    # 게임 시작 함수
     def run_game(self):
         running = True
 
@@ -56,9 +59,12 @@ class GameManager:
 
                 if self.character.game_clear:
                     Screen.show_clear_screen(self.screen)
+                    print('게임 클리어')
                 elif self.character.game_over:
                     Screen.show_game_over_screen(self.screen)
-
+                    print('게임오버')
+                    break
+                    
             pygame.display.update()
             self.clock.tick(60)
 
