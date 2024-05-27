@@ -21,6 +21,8 @@ class Character:
         self.game_clear = False
         self.blocks = blocks
         self.obstacles = obstacles
+        self.colors = [RED, ORANGE, YELLOW]
+        self.current_color_index = 0
 
     # 장애물에 닿으면 다시 돌아와라
     def set_initial_position(self):
@@ -72,6 +74,7 @@ class Character:
             if self.life == 0:
                 self.game_over = True
             else:
+                self.current_color_index = min(len(self.colors) - 1, self.current_color_index + 1)
                 self.set_initial_position()
                 self.vertical_momentum = 0
                 self.is_on_ground = True
@@ -82,7 +85,7 @@ class Character:
 
     # 장애물, 발판, 라이프 개수 그리기
     def draw_game_elements(self, screen, blocks, obstacles):
-        pygame.draw.rect(screen, RED, pygame.Rect(self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen, self.colors[self.current_color_index], pygame.Rect(self.x, self.y, self.width, self.height))
         for block in blocks:
             block.draw(screen)
         for obstacle in obstacles:
