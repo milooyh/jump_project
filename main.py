@@ -3,7 +3,7 @@ import sys
 import random
 from setting import *
 from character import *
-from block import *
+from platform import *
 from portal import *
 from obstacle import *
 from screen import *
@@ -22,6 +22,18 @@ show_start_screen(screen)
 # 초기 설정
 reset_game()
 
+# 이벤트 처리 함수
+def handle_game_events(event):
+    global space_pressed, running
+    if event.type == pygame.QUIT:
+        running = False
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE:
+            space_pressed = True
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_SPACE:
+            space_pressed = False
+            
 # 게임 루프
 running = True
 
@@ -39,10 +51,11 @@ while running:
             if event.key == pygame.K_SPACE:
                 space_pressed = False
 
+        handle_game_events(event)  # 수정된 부분
+
     if not game_over:
-        handle_game_events(event)
         update_game_state()
-        draw_game_elements(screen, character_rect)
+        draw_game_elements(screen, character_rect)  # 추가된 부분
 
         if game_clear:
             show_clear_screen(screen)

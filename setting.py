@@ -15,17 +15,20 @@ LIGHT_RED = (255, 144, 144)
 PORTAL_COLOR = (255, 0, 255)
 
 # 캐릭터 속성 설정
-character_width, character_height = 20, 20
+character_width = 20
+character_height = 20
 character_speed = 6
 jump_speed = 20
 gravity = 1.4
+character_x = SCREEN_WIDTH // 2
+character_y = SCREEN_HEIGHT - character_height * 2
 
 # 상수 정의
 LEFT_EDGE = 0
 RIGHT_EDGE = SCREEN_WIDTH - character_width
 
 # 바닥 속성 설정
-floor_height = 22  # 바닥 두께
+floor_height = 22
 floor_y = SCREEN_HEIGHT - floor_height
 
 # 발판 속성 설정
@@ -35,6 +38,11 @@ platform_color = BLUE
 # 장애물 속성 설정
 obstacle_width, obstacle_height = 80, 30
 obstacle_color = BLACK
+
+# 화면 이동 관련 변수 설정
+screen_move_speed = character_speed
+screen_move_threshold = SCREEN_WIDTH // 2
+screen_move_height = SCREEN_HEIGHT // 4
 
 # 블록 좌표 설정
 blocks_positions = [
@@ -51,16 +59,3 @@ obstacles_positions = [
     (600, 200),
     (800, 100)
 ]
-
-# 게임 초기 상태
-character_x, character_y = SCREEN_WIDTH // 2, SCREEN_HEIGHT - character_height * 2
-vertical_momentum = 0
-is_on_ground = True
-space_pressed = False
-life = 3
-game_clear = False
-game_over = False
-collision_message = ""
-collision_time = 0
-item_effects = {}
-effect_start_time = {}
