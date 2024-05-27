@@ -4,6 +4,8 @@ import sys
 from setting import *
 from character import Character
 from screen import Screen
+from block import Block
+from obstacle import Obstacle
 
 class GameManager:
     def __init__(self):
@@ -19,8 +21,11 @@ class GameManager:
         Screen.show_start_screen(self.screen)
 
         # 초기 설정
-        self.character = Character()
         self.floor_y = floor_y  # setting.py에서 floor_y 상수 가져오기
+        
+        self.blocks = [Block(x, y) for x, y in blocks_positions]  # 블록 객체 리스트 생성
+        self.obstacles = [Obstacle(x, y) for x, y in obstacles_positions]  # 장애물 객체 리스트 생성
+        self.character = Character(self.blocks, self.obstacles)  # 블록과 장애물 리스트를 전달
 
     def run_game(self):
         running = True
@@ -46,7 +51,7 @@ class GameManager:
                 self.character.update_game_state()  # 게임 상태 업데이트
                 print('게임 상태 업데이트')
 
-                self.character.draw_game_elements(self.screen)  # 게임 요소 그리기
+                self.character.draw_game_elements(self.screen, self.blocks, self.obstacles)  # 게임 요소 그리기
                 print('게임 요소 그리기')
 
                 if self.character.game_clear:

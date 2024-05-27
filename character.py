@@ -5,7 +5,7 @@ from block import Block
 from obstacle import Obstacle
 
 class Character:
-    def __init__(self):
+    def __init__(self, blocks, obstacles):
         self.width = 20
         self.height = 20
         self.speed = 6
@@ -19,6 +19,8 @@ class Character:
         self.life = 3
         self.game_over = False
         self.game_clear = False
+        self.blocks = blocks
+        self.obstacles = obstacles
 
     def set_initial_position(self):
         self.x = SCREEN_WIDTH // 2
@@ -56,8 +58,8 @@ class Character:
             self.vertical_momentum = 0
             self.is_on_ground = True
 
-        block_collided = Block.check_collision(self.x, self.y, self.width, self.height, blocks)
-        obstacle_collided = Obstacle.check_collision(self.x, self.y, self.width, self.height, obstacles)
+        block_collided = Block.check_collision(self.x, self.y, self.width, self.height, self.blocks)
+        obstacle_collided = Obstacle.check_collision(self.x, self.y, self.width, self.height, self.obstacles)
         if block_collided:
             if self.vertical_momentum > 0:
                 self.y = block_collided.y - self.height
@@ -74,8 +76,13 @@ class Character:
                 self.vertical_momentum = 0
                 self.is_on_ground = True
 
-        if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
-            self.game_clear = True
+        #if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
+        #    self.game_clear = True
 
-    def draw_game_elements(self, screen):
+    def draw_game_elements(self, screen, blocks, obstacles):
         pygame.draw.rect(screen, RED, pygame.Rect(self.x, self.y, self.width, self.height))
+        for block in blocks:
+            block.draw(screen)
+        for obstacle in obstacles:
+            obstacle.draw(screen)
+
