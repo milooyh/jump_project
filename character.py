@@ -1,111 +1,83 @@
+# character.py
 import pygame
-import random
 from setting import *
-from block import *
-from obstacle import *
 
-character_width = 20
-character_height = 20
-character_speed = 6
-jump_speed = 20
-gravity = 1.4
-character_x = SCREEN_WIDTH // 2
-character_y = SCREEN_HEIGHT - character_height * 2
+class Character:
+    def __init__(self):
+        self.width = 20
+        self.height = 20
+        self.speed = 6
+        self.jump_speed = 20
+        self.gravity = 1.4
+        self.x = SCREEN_WIDTH // 2
+        self.y = SCREEN_HEIGHT - self.height * 2
+        self.vertical_momentum = 0
+        self.is_on_ground = True
+        self.space_pressed = False
+        self.life = 3
+        self.game_over = False
+        self.game_clear = False
 
-vertical_momentum = 0
-is_on_ground = True
+    def set_initial_position(self):
+        self.x = SCREEN_WIDTH // 2
+        self.y = SCREEN_HEIGHT - self.height * 2
+        self.life = 3
 
-space_pressed = False
-life = 3
-game_over = False
-game_clear = False
+    def update_game_state(self):
+        current_time = pygame.time.get_ticks()
+        print("스페이스 바 눌림 여부:", self.space_pressed)
 
-collision_message = ""
-collision_time = 0
+        if self.space_pressed and self.is_on_ground:
+            print('점프 중')
+            self.vertical_momentum = -self.jump_speed
+            self.is_on_ground = False
 
-item_effects = {}
-effect_start_time = {}
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            print('왼쪽키 눌림')
+            self.x = max(LEFT_EDGE, self.x - self.speed)
+        if keys[pygame.K_RIGHT]:
+            print('오른쪽키 눌림')
+            self.x = min(RIGHT_EDGE, self.x + self.speed)
 
-# 캐릭터 초기 위치 설정
-def set_character_initial_position():
-    global character_x, character_y, life
-    character_x = SCREEN_WIDTH // 2
-    character_y = SCREEN_HEIGHT - character_height * 2
-    life = 3
+        if self.x > screen_move_threshold:
+            dx = self.x - screen_move_threshold
+            for block in blocks:
+                block.x -= screen_move_speed
+            for obstacle in obstacles:
+                obstacle.x -= screen_move_speed
+            self.x -= screen_move_speed
 
-# 게임 재설정
-def reset_game():
-    global character_x, character_y, vertical_momentum, is_on_ground, space_pressed, life, game_clear, game_over, collision_message, collision_time, item_effects, effect_start_time, portal
-    set_character_initial_position()
-    vertical_momentum = 0
-    is_on_ground = True
-    space_pressed = False
-    life = 3
-    game_over = False
-    game_clear = False
-    collision_message = ""
-    collision_time = 0
-    item_effects = {}
-    effect_start_time = {}
-    portal = None
+        self.x = max(0, min(SCREEN_WIDTH - self.width, self.x))
+        self.vertical_momentum += self.gravity
+        self.y += self.vertical_momentum
+        self.y = min(self.y, floor_y - self.height)
 
-# 게임 상태 업데이트
-def update_game_state():
-    global character_x, character_y, vertical_momentum, is_on_ground, life, game_over, game_clear, portal
-    current_time = pygame.time.get_ticks()
+        if self.y >= floor_y - self.height:
+            self.y = floor_y - self.height
+            self.vertical_momentum = 0
+            self.is_on_ground = True
 
-    # 스페이스 입력 + 바닥에 있으면 점프
-    if space_pressed and is_on_ground:
-        vertical_momentum = -jump_speed
-        is_on_ground = False
+        block_collided = check_collision(pygame.Rect(self.x, self.y, self.width, self.height), blocks)
+        obstacle_collided = check_collision(pygame.Rect(self.x, self.y, self.width, self.height), obstacles)
+        if block_collided:
+            if self.vertical_momentum > 0:
+                self.y = block_collided.y - self.height
+                self.vertical_momentum = 0
+                self.is_on_ground = True
+                
+        if obstacle_collided:
+            print("장애물과 충돌 여부:", obstacle_collided)
+            self.life -= 1
+            if self.life == 0:
+                self.game_over = True
+            else:
+                self.set_initial_position()
+                self.vertical_momentum = 0
+                self.is_on_ground = True
 
-    # 키 입력에 따라 캐릭터 좌우 이동
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        character_x = max(LEFT_EDGE, character_x - character_speed)
-    if keys[pygame.K_RIGHT]:
-        character_x = min(RIGHT_EDGE, character_x + character_speed)
+        if portal and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(portal.rect):
+            self.game_clear = True
 
-    # 캐릭터가 일정 위치 넘어가면 화면 이동
-    if character_x > screen_move_threshold:
-        dx = character_x - screen_move_threshold
-        for block in blocks:
-            block.x -= screen_move_speed
-        for obstacle in obstacles:
-            obstacle.x -= screen_move_speed
-        character_x -= screen_move_speed
-
-    # 캐릭터가 화면 안에서 움직이도록 범위 제한
-    character_x = max(0, min(SCREEN_WIDTH - character_width, character_x))
-    vertical_momentum += gravity
-    character_y += vertical_momentum
-    character_y = min(character_y, floor_y - character_height)
-
-    # 캐릭터가 바닥에 도달하면 세로 운동량 초기화
-    if character_y >= floor_y - character_height:
-        character_y = floor_y - character_height
-        vertical_momentum = 0
-        is_on_ground = True
-
-    # 캐릭터가 발판과 충돌하면 바닥으로 이동
-    block_collided = check_collision(pygame.Rect(character_x, character_y, character_width, character_height), blocks)
-    obstacle_collided = check_collision(pygame.Rect(character_x, character_y, character_width, character_height), obstacles)
-    if block_collided:
-        if vertical_momentum > 0:
-            character_y = block_collided.y - character_height
-            vertical_momentum = 0
-            is_on_ground = True
-            
-    # 장애물과 충돌하면 생명을 감소시키거나 게임 오버 여부 판단
-    if obstacle_collided:
-        life -= 1
-        if life == 0:
-            game_over = True
-        else:
-            set_character_initial_position()
-            vertical_momentum = 0
-            is_on_ground = True
-
-    # 포털과 충돌하면 게임 클리어 상태로 변경
-    if portal and pygame.Rect(character_x, character_y, character_width, character_height).colliderect(portal.rect):
-        game_clear = True
+    def draw_game_elements(self, screen):
+        pygame.draw.rect(screen, RED, pygame.Rect(self.x, self.y, self.width, self.height))
