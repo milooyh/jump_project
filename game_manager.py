@@ -7,9 +7,11 @@ from character import Character
 from screen import Screen
 from block import Block
 from obstacle import Obstacle
+from portal import Portal
 
 class GameManager:
     
+    # 게임 초기화 함수
     def __init__(self):
         pygame.init()
         pygame.font.init()
@@ -19,12 +21,21 @@ class GameManager:
 
         self.clock = pygame.time.Clock()
 
+        # 게임 시작 페이지 표시
+        Screen.show_start_screen(self.screen)
+
         # 초기 설정
-        self.floor_y = floor_y  # setting.py에서 floor_y 상수 가져오기
-        
-        self.blocks = [Block(x, y) for x, y in blocks_positions]  # 블록 객체 리스트 생성
+        self.floor_y = floor_y
+
+        self.blocks = [Block(x, y) for x, y in blocks_positions]
         self.obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]
-        self.character = Character(self.blocks, self.obstacles)  # 블록과 장애물 리스트를 전달
+
+        # 포털 초기화
+        self.portal = Portal(700, 70)
+
+        # 캐릭터 초기화
+        self.character = Character(self.blocks, self.obstacles, self.portal)  # 포털도 전달
+
         self.game_over = False
         self.game_clear = False
         
@@ -35,10 +46,12 @@ class GameManager:
         self.character.current_color_index = 0
         self.obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]
                 
+    # 게임 시작 함수
     def run_game(self):
         running = True
         font = pygame.font.Font(None, 36)  # 라이프 개수를 표시할 폰트 설정    
         obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]  # 장애물 객체 리스트 생성
+        
         
         while running:
             self.screen.fill(WHITE)
@@ -61,7 +74,7 @@ class GameManager:
                 self.character.update_game_state()  # 게임 상태 업데이트
                 print('게임 상태 업데이트')
 
-                self.character.draw_game_elements(self.screen, self.blocks, self.obstacles)  # 게임 요소 그리기
+                self.character.draw_game_elements(self.screen, self.blocks, self.obstacles, self.portal)  # 게임 요소 그리기
                 print('게임 요소 그리기')
                 
                 # 장애물 위치 업데이트
@@ -80,6 +93,8 @@ class GameManager:
                 elif self.character.game_over:
                     Screen.show_game_over_screen(self.screen, self)
                     print('게임오버')
+                    
+                
                     
             pygame.display.update()
             self.clock.tick(60)

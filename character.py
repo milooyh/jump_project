@@ -3,9 +3,10 @@ from setting import *
 from screen import Screen
 from block import Block
 from obstacle import Obstacle
+from portal import Portal
 
 class Character:
-    def __init__(self, blocks, obstacles):
+    def __init__(self, blocks, obstacles, portal):
         self.width = 20
         self.height = 20
         self.speed = 6
@@ -21,6 +22,7 @@ class Character:
         self.game_clear = False
         self.blocks = blocks
         self.obstacles = obstacles
+        self.portal = portal
         self.colors = [RED, ORANGE, YELLOW]
         self.current_color_index = 0
         self.show_life = False
@@ -82,18 +84,22 @@ class Character:
                 self.set_initial_position()
                 self.vertical_momentum = 0
                 self.is_on_ground = True
-
+        
+        if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(self.portal.rect):
+            self.game_clear = True
 
         #if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
         #    self.game_clear = True
 
-    # 장애물, 발판, 라이프 개수 그리기
-    def draw_game_elements(self, screen, blocks, obstacles):
+    # 장애물, 발판, 라이프 개수, 포털 그리기
+    def draw_game_elements(self, screen, blocks, obstacles, portal):
         pygame.draw.rect(screen, self.colors[self.current_color_index], pygame.Rect(self.x, self.y, self.width, self.height))
         for block in blocks:
             block.draw(screen)
         for obstacle in obstacles:
             obstacle.draw(screen)
+            
+        self.portal.draw(screen)
         
         if self.show_life:
             font = pygame.font.Font(None, 36)
