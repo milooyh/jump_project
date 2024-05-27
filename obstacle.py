@@ -6,10 +6,5 @@ class Obstacle:
         self.x = x
         self.y = y
 
-obstacles = [Obstacle(x, y) for x, y in obstacles_positions]
-
-def check_collision(character, obstacles):
-    for obstacle in obstacles:
-        if character.colliderect(pygame.Rect(obstacle.x, obstacle.y, obstacle_width, obstacle_height)):
-            return obstacle
-    return None
+    def draw(self, screen):
+        pygame.draw.rect(screen, obstacle_color, pygame.Rect(self.x, self.y, obstacle_width, obstacle_height))

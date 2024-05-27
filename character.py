@@ -1,6 +1,8 @@
-# character.py
 import pygame
 from setting import *
+from screen import Screen
+from block import Block
+from obstacle import Obstacle
 
 class Character:
     def __init__(self):
@@ -40,26 +42,22 @@ class Character:
             print('오른쪽키 눌림')
             self.x = min(RIGHT_EDGE, self.x + self.speed)
 
-        if self.x > screen_move_threshold:
-            dx = self.x - screen_move_threshold
-            for block in blocks:
-                block.x -= screen_move_speed
-            for obstacle in obstacles:
-                obstacle.x -= screen_move_speed
-            self.x -= screen_move_speed
+        if self.x > SCREEN_WIDTH // 2:
+            dx = self.x - SCREEN_WIDTH // 2
+            Screen.move_screen(dx)
 
         self.x = max(0, min(SCREEN_WIDTH - self.width, self.x))
         self.vertical_momentum += self.gravity
         self.y += self.vertical_momentum
-        self.y = min(self.y, floor_y - self.height)
+        self.y = min(self.y, Screen.floor_y - self.height)
 
-        if self.y >= floor_y - self.height:
-            self.y = floor_y - self.height
+        if self.y >= Screen.floor_y - self.height:
+            self.y = Screen.floor_y - self.height
             self.vertical_momentum = 0
             self.is_on_ground = True
 
-        block_collided = check_collision(pygame.Rect(self.x, self.y, self.width, self.height), blocks)
-        obstacle_collided = check_collision(pygame.Rect(self.x, self.y, self.width, self.height), obstacles)
+        block_collided = Block.check_collision(self.x, self.y, self.width, self.height)
+        obstacle_collided = Obstacle.check_collision(self.x, self.y, self.width, self.height)
         if block_collided:
             if self.vertical_momentum > 0:
                 self.y = block_collided.y - self.height
@@ -76,7 +74,7 @@ class Character:
                 self.vertical_momentum = 0
                 self.is_on_ground = True
 
-        if portal and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(portal.rect):
+        if Screen.portal and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal.rect):
             self.game_clear = True
 
     def draw_game_elements(self, screen):

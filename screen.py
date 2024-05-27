@@ -7,6 +7,8 @@ from portal import *
 
 # 시작 화면 보여주기
 def show_start_screen(screen):
+    print('show_statr_screen 함수 호출')
+    
     screen.fill(WHITE)
     font = pygame.font.Font(None, 64)
     text = font.render("Press SPACE to Start", True, BLACK)
@@ -15,8 +17,8 @@ def show_start_screen(screen):
     pygame.display.update()
     wait_for_space()
 
-
 def wait_for_space():
+    print('wait_for_space 함수 호출')
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -28,6 +30,8 @@ def wait_for_space():
 
 # 클리어 화면
 def show_clear_screen(screen):
+    print('show_clear_screen 함수 호출')
+    
     screen.fill(WHITE)
     font = pygame.font.Font(None, 64)
     text = font.render("Game Clear!", True, GREEN)
@@ -38,6 +42,8 @@ def show_clear_screen(screen):
 
 # 게임 오버 화면
 def show_game_over_screen(screen):
+    print('show_game_over_screen 함수 호출')
+    
     screen.fill(WHITE)
     font = pygame.font.Font(None, 64)
     text = font.render("Game Over", True, RED)
@@ -48,6 +54,8 @@ def show_game_over_screen(screen):
 
 # 요소 그리기 
 def draw_game_elements(screen, character_rect):
+    print('draw_game_elements 함수 호출')
+    
     pygame.draw.rect(screen, RED, character_rect)
     for block in blocks:
         pygame.draw.rect(screen, platform_color, pygame.Rect(block.x, block.y, platform_width, platform_height))
