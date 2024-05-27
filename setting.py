@@ -38,6 +38,7 @@ platform_color = BLUE
 # 장애물 속성 설정
 obstacle_width, obstacle_height = 80, 30
 obstacle_color = BLACK
+obstacle_speed = 3
 
 # 화면 이동 관련 변수 설정
 screen_move_speed = character_speed

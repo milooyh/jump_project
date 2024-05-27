@@ -26,13 +26,15 @@ class GameManager:
         self.floor_y = floor_y  # setting.py에서 floor_y 상수 가져오기
         
         self.blocks = [Block(x, y) for x, y in blocks_positions]  # 블록 객체 리스트 생성
-        self.obstacles = [Obstacle(x, y) for x, y in obstacles_positions]  # 장애물 객체 리스트 생성
+        self.obstacles = [Obstacle(x, y, obstacle_speed) for x, y in obstacles_positions]
         self.character = Character(self.blocks, self.obstacles)  # 블록과 장애물 리스트를 전달
 
     # 게임 시작 함수
     def run_game(self):
         running = True
         font = pygame.font.Font(None, 36)  # 라이프 개수를 표시할 폰트 설정    
+        obstacles = [Obstacle(x, y, obstacle_speed) for x, y in obstacles_positions]  # 장애물 객체 리스트 생성
+        
         
         while running:
             self.screen.fill(WHITE)
@@ -58,6 +60,12 @@ class GameManager:
                 self.character.draw_game_elements(self.screen, self.blocks, self.obstacles)  # 게임 요소 그리기
                 print('게임 요소 그리기')
                 
+                # 장애물 위치 업데이트
+                for obstacle in self.obstacles:
+                    obstacle.update_position()
+                    if obstacle.x < -obstacle_width:
+                        obstacle.x = SCREEN_WIDTH
+                    
                 life_text = font.render(f"Life: {self.character.life}", True, BLACK)
                 life_rect = life_text.get_rect(center=(SCREEN_WIDTH // 2, 30))
                 self.screen.blit(life_text, life_rect)
