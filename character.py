@@ -56,8 +56,8 @@ class Character:
             self.vertical_momentum = 0
             self.is_on_ground = True
 
-        block_collided = Block.check_collision(self.x, self.y, self.width, self.height)
-        obstacle_collided = Block.check_collision(self.x, self.y, self.width, self.height)
+        block_collided = Block.check_collision(self.x, self.y, self.width, self.height, blocks)
+        obstacle_collided = Obstacle.check_collision(self.x, self.y, self.width, self.height, obstacles)
         if block_collided:
             if self.vertical_momentum > 0:
                 self.y = block_collided.y - self.height
@@ -74,7 +74,7 @@ class Character:
                 self.vertical_momentum = 0
                 self.is_on_ground = True
 
-        if Screen.portal and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal.rect):
+        if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
             self.game_clear = True
 
     def draw_game_elements(self, screen):
