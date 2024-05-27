@@ -32,7 +32,8 @@ class GameManager:
     # 게임 시작 함수
     def run_game(self):
         running = True
-
+        font = pygame.font.Font(None, 36)  # 라이프 개수를 표시할 폰트 설정    
+        
         while running:
             self.screen.fill(WHITE)
             character_rect = pygame.Rect(self.character.x, self.character.y, self.character.width, self.character.height)
@@ -56,6 +57,10 @@ class GameManager:
 
                 self.character.draw_game_elements(self.screen, self.blocks, self.obstacles)  # 게임 요소 그리기
                 print('게임 요소 그리기')
+                
+                life_text = font.render(f"Life: {self.character.life}", True, BLACK)
+                life_rect = life_text.get_rect(center=(SCREEN_WIDTH // 2, 30))
+                self.screen.blit(life_text, life_rect)
 
                 if self.character.game_clear:
                     Screen.show_clear_screen(self.screen)

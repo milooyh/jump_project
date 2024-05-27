@@ -23,6 +23,8 @@ class Character:
         self.obstacles = obstacles
         self.colors = [RED, ORANGE, YELLOW]
         self.current_color_index = 0
+        self.show_life = False
+        self.life_counter = 0
 
     # 장애물에 닿으면 다시 돌아와라
     def set_initial_position(self):
@@ -71,6 +73,8 @@ class Character:
             print("장애물과 충돌 여부:", obstacle_collided)
             self.life -= 1
             print('라이프 개수', self.life)
+            self.show_life = True
+            self.life_counter = current_time
             if self.life == 0:
                 self.game_over = True
             else:
@@ -91,8 +95,9 @@ class Character:
         for obstacle in obstacles:
             obstacle.draw(screen)
         
-        font = pygame.font.Font(None, 36)
-        text = font.render(f"Life: {self.life}", True, BLACK)
-        screen.blit(text, (10, 10))
-
-
+        if self.show_life:
+            font = pygame.font.Font(None, 36)
+            text = font.render(f"like : {self.life}", True, BLACK)
+            current_time = pygame.time.get_ticks()
+            if current_time - self.life_counter >= 1000:  # 1초 동안만 표시
+                self.show_life = False
