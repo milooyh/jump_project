@@ -5,7 +5,7 @@ from obstacle import Obstacle
 from block import Block
 from portal import Portal
 
-class ScreenManager:
+class Screen:
     def __init__(self):
         pass
 
@@ -19,7 +19,7 @@ class ScreenManager:
         text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(text, text_rect)
         pygame.display.update()
-        ScreenManager.wait_for_space()
+        Screen.wait_for_space()
 
     @staticmethod
     def wait_for_space():

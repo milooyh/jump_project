@@ -49,10 +49,10 @@ class Character:
         self.x = max(0, min(SCREEN_WIDTH - self.width, self.x))
         self.vertical_momentum += self.gravity
         self.y += self.vertical_momentum
-        self.y = min(self.y, Screen.floor_y - self.height)
+        self.y = min(self.y, floor_y - self.height)
 
-        if self.y >= Screen.floor_y - self.height:
-            self.y = Screen.floor_y - self.height
+        if self.y >= floor_y - self.height:
+            self.y = floor_y - self.height
             self.vertical_momentum = 0
             self.is_on_ground = True
 

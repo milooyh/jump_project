@@ -1,11 +1,9 @@
 # game_manager.py
 import pygame
+import sys
 from setting import *
-from character import *
-from block import *
-from obstacle import *
-from portal import *
-from screen import *
+from character import Character
+from screen import Screen
 
 class GameManager:
     def __init__(self):
@@ -18,21 +16,11 @@ class GameManager:
         self.clock = pygame.time.Clock()
 
         # 게임 시작 페이지 표시
-        show_start_screen(self.screen)
+        Screen.show_start_screen(self.screen)
 
         # 초기 설정
-        self.reset_game()
-
         self.character = Character()
-        self.platform = Platform()
-        self.obstacle = Obstacle()
-        self.portal = Portal()
-
-    def reset_game(self):
-        self.character = Character()
-        self.platform = Platform()
-        self.obstacle = Obstacle()
-        self.portal = Portal()
+        self.floor_y = floor_y  # setting.py에서 floor_y 상수 가져오기
 
     def run_game(self):
         running = True
