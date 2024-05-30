@@ -3,8 +3,8 @@ from setting import *
 
 class Portal:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = 700
+        self.y = 150
         self.width = 50
         self.height = 50
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
