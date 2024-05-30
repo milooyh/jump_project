@@ -51,6 +51,14 @@ class GameManager:
         self.character.current_color_index = 0
         self.obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]
 
+        # 아이템들의 초기 위치 재설정
+        self.heart_item.rect.x = 100
+        self.heart_item.rect.y = 550
+        self.speed_item.rect.x = 300
+        self.speed_item.rect.y = 450
+        self.invincibility_item.rect.x = 400
+        self.invincibility_item.rect.y = 450
+        
     def run_game(self):
         running = True
         font = pygame.font.Font(None, 36)
