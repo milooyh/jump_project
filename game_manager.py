@@ -37,6 +37,10 @@ class GameManager:
         self.speed_item = SpeedItem(300, 450)  # 고정 위치 (x, y) 값으로 변경
         self.invincibility_item = InvincibilityItem(400,450)  # 고정 위치 (x, y) 값으로 변경
 
+        # 아이템 효과 지속 시간을 기록할 변수들 추가
+        self.speed_item_effect_start_time = None
+        self.invincibility_item_effect_start_time = None
+        
         self.game_over = False
         self.game_clear = False
 
@@ -98,15 +102,30 @@ class GameManager:
                 self.heart_item.rect.x = -1000  # 아이템 위치를 화면 밖으로 이동시켜 표시하지 않음
                 self.heart_item.rect.y = -1000
                 self.heart_item_eaten = True  # 아이템을 먹은 상태로 표시
+                
             if speed_item_eaten:
                 self.speed_item.rect.x = -1000
                 self.speed_item.rect.y = -1000
                 self.speed_item_eaten = True
+                self.speed_item_effect_start_time = pygame.time.get_ticks()  # 아이템 효과 시작 시간 기록
+                
             if invincibility_item_eaten:
                 self.invincibility_item.rect.x = -1000
                 self.invincibility_item.rect.y = -1000
                 self.invincibility_item_eaten = True
+                self.invincibility_item_effect_start_time = pygame.time.get_ticks()  # 아이템 효과 시작 시간 기록
 
+            # 아이템 효과 지속 시간 체크 및 효과 제거
+            current_time = pygame.time.get_ticks()
+            if self.speed_item_effect_start_time is not None and current_time - self.speed_item_effect_start_time > 5000:
+                self.speed_item_effect_start_time = None
+                for obstacle in self.obstacles:
+                    obstacle.speed *= 2  # 속도 다시 두배로
+            
+            if self.invincibility_item_effect_start_time is not None and current_time - self.invincibility_item_effect_start_time > 5000:
+                self.invincibility_item_effect_start_time = None
+                self.invincible = False
+    
             pygame.display.update()
             self.clock.tick(FPS)
 
