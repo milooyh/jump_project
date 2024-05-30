@@ -89,10 +89,22 @@ class GameManager:
             elif self.character.game_over:
                 Screen.show_game_over_screen(self.screen, self)
                 
-        # 아이템 먹기
-            if self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item):
-                self.heart_item_eaten = True
+            # 아이템 먹기
+            heart_item_eaten = self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item)
+            speed_item_eaten = self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item)
+            invincibility_item_eaten = self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item)
+                
+            if heart_item_eaten:
+                self.heart_item.rect.x = -1000  # 아이템 위치를 화면 밖으로 이동시켜 표시하지 않음
+                self.heart_item.rect.y = -1000
+                self.heart_item_eaten = True  # 아이템을 먹은 상태로 표시
+            if speed_item_eaten:
+                self.speed_item.rect.x = -1000
+                self.speed_item.rect.y = -1000
                 self.speed_item_eaten = True
+            if invincibility_item_eaten:
+                self.invincibility_item.rect.x = -1000
+                self.invincibility_item.rect.y = -1000
                 self.invincibility_item_eaten = True
 
             pygame.display.update()
