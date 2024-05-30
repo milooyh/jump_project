@@ -32,7 +32,8 @@ class Character:
         self.speed_boost_timer = 0
         self.invincible_remaining_time = 0
         self.speed_boost_remaining_time = 0
-
+        self.heart_item_eaten = False
+        
         self.image = pygame.image.load('character.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
@@ -124,7 +125,10 @@ class Character:
 
     def check_item_collision(self, heart_item, speed_item, invincibility_item):
         if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(heart_item.rect):
-            self.life += 1
+            if not self.heart_item_eaten:
+                self.life += 1
+                self.heart_item_eaten = True
+                return True
             heart_item.x = -100  # 화면 밖으로 이동
         if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(speed_item.rect):
             for obstacle in self.obstacles:

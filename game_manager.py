@@ -88,6 +88,12 @@ class GameManager:
 
             elif self.character.game_over:
                 Screen.show_game_over_screen(self.screen, self)
+                
+        # 아이템 먹기
+            if self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item):
+                self.heart_item_eaten = True
+                self.speed_item_eaten = True
+                self.invincibility_item_eaten = True
 
             pygame.display.update()
             self.clock.tick(FPS)
