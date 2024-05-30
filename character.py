@@ -29,6 +29,9 @@ class Character:
         self.life_counter = 0
         self.invincible = False
         self.invincible_timer = 0
+        self.speed_boost_timer = 0
+        self.invincible_remaining_time = 0
+        self.speed_boost_remaining_time = 0
 
         self.image = pygame.image.load('character.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
@@ -49,9 +52,6 @@ class Character:
             self.x = max(LEFT_EDGE, self.x - self.speed)
         if keys[pygame.K_RIGHT]:
             self.x = min(RIGHT_EDGE, self.x + self.speed)
-
-        if self.x > SCREEN_WIDTH // 2:
-            dx = self.x - SCREEN_WIDTH // 2
 
         self.x = max(0, min(SCREEN_WIDTH - self.width, self.x))
         self.vertical_momentum += self.gravity
@@ -83,8 +83,15 @@ class Character:
                 self.vertical_momentum = 0
                 self.is_on_ground = True
 
-        if self.invincible and current_time - self.invincible_timer > 5000:  # 무적 시간 5초
+        # 무적 효과가 끝나면 무적 해제
+        if self.invincible and current_time - self.invincible_timer > 5000:
             self.invincible = False
+
+        # 스피드 효과가 끝나면 장애물 속도 복원
+        if self.speed_boost_timer and current_time - self.speed_boost_timer > 5000:
+            for obstacle in self.obstacles:
+                obstacle.speed *= 2
+            self.speed_boost_timer = 0
 
     def draw_game_elements(self, screen, blocks, obstacles, portal):
         screen.blit(self.image, (self.x, self.y))
@@ -102,6 +109,19 @@ class Character:
             if current_time - self.life_counter >= 1000:  # 1초 동안만 표시
                 self.show_life = False
 
+        # 남은 시간 표시
+        if self.invincible:
+            remaining_time = 5 - (pygame.time.get_ticks() - self.invincible_timer) // 1000
+            font = pygame.font.Font(None, 36)
+            text = font.render(f"Invincible: {remaining_time}", True, BLACK)
+            screen.blit(text, (10, 50))
+
+        if self.speed_boost_timer:
+            remaining_time = 5 - (pygame.time.get_ticks() - self.speed_boost_timer) // 1000
+            font = pygame.font.Font(None, 36)
+            text = font.render(f"Speed Boost: {remaining_time}", True, BLACK)
+            screen.blit(text, (10, 80))
+
     def check_item_collision(self, heart_item, speed_item, invincibility_item):
         if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(heart_item.rect):
             self.life += 1
@@ -109,8 +129,9 @@ class Character:
         if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(speed_item.rect):
             for obstacle in self.obstacles:
                 obstacle.speed /= 2  # 속도 절반으로 줄이기
+            self.speed_boost_timer = pygame.time.get_ticks()  # 타이머 시작
             speed_item.x = -100  # 화면 밖으로 이동
         if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(invincibility_item.rect):
             self.invincible = True
-            self.invincible_timer = pygame.time.get_ticks()
+            self.invincible_timer = pygame.time.get_ticks()  # 타이머 시작
             invincibility_item.x = -100  # 화면 밖으로 이동

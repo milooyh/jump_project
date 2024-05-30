@@ -6,10 +6,9 @@ from screen import Screen
 from block import Block
 from obstacle import Obstacle
 from portal import Portal
-from item import HeartItem, SpeedItem, InvincibilityItem
+from item import *
 
 class GameManager:
-    
     def __init__(self):
         pygame.init()
         pygame.font.init()
@@ -33,9 +32,9 @@ class GameManager:
 
         self.character = Character(self.blocks, self.obstacles, self.portal)
 
-        self.heart_item = HeartItem(200, 500)
-        self.speed_item = SpeedItem(400, 350)
-        self.invincibility_item = InvincibilityItem(600, 200)
+        self.heart_item = HeartItem(100, 100)
+        self.speed_item = SpeedItem(300, 100)
+        self.invincibility_item = InvincibilityItem(500, 100)
 
         self.game_over = False
         self.game_clear = False
@@ -46,12 +45,11 @@ class GameManager:
         self.character.game_over = False
         self.character.current_color_index = 0
         self.obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]
-                
+
     def run_game(self):
         running = True
         font = pygame.font.Font(None, 36)
-        obstacles = [Obstacle(x, y, obstacle_speed) for x, y, obstacle_speed in obstacles_positions]
-        
+
         while running:
             self.screen.fill(WHITE)
             character_rect = pygame.Rect(self.character.x, self.character.y, self.character.width, self.character.height)
@@ -68,12 +66,8 @@ class GameManager:
 
             if not self.character.game_over and not self.character.game_clear:
                 self.character.update_game_state()
-
                 self.character.draw_game_elements(self.screen, self.blocks, self.obstacles, self.portal)
-                
-                self.heart_item.draw(self.screen)
-                self.speed_item.draw(self.screen)
-                self.invincibility_item.draw(self.screen)
+                self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item)
 
                 for obstacle in self.obstacles:
                     obstacle.update_position()
@@ -84,15 +78,18 @@ class GameManager:
                 life_rect = life_text.get_rect(center=(SCREEN_WIDTH // 2, 30))
                 self.screen.blit(life_text, life_rect)
 
-                self.character.check_item_collision(self.heart_item, self.speed_item, self.invincibility_item)
+                self.heart_item.draw(self.screen)
+                self.speed_item.draw(self.screen)
+                self.invincibility_item.draw(self.screen)
 
                 if self.character.game_clear:
                     Screen.show_clear_screen(self.screen)
-                elif self.character.game_over:
-                    Screen.show_game_over_screen(self.screen, self)
-                    
+
+            elif self.character.game_over:
+                Screen.show_game_over_screen(self.screen)
+
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
         pygame.quit()
         sys.exit()
