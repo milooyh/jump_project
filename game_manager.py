@@ -32,9 +32,10 @@ class GameManager:
 
         self.character = Character(self.blocks, self.obstacles, self.portal)
 
-        self.heart_item = HeartItem(100, 100)
-        self.speed_item = SpeedItem(300, 100)
-        self.invincibility_item = InvincibilityItem(500, 100)
+        # 아이템들의 초기 위치 설정
+        self.heart_item = HeartItem(100, 550)  # 고정 위치 (x, y) 값으로 변경
+        self.speed_item = SpeedItem(300, 450)  # 고정 위치 (x, y) 값으로 변경
+        self.invincibility_item = InvincibilityItem(400,450)  # 고정 위치 (x, y) 값으로 변경
 
         self.game_over = False
         self.game_clear = False
