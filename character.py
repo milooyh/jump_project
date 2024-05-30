@@ -27,30 +27,27 @@ class Character:
         self.current_color_index = 0
         self.show_life = False
         self.life_counter = 0
-        
-        self.image = pygame.image.load('character.png').convert_alpha()  # 캐릭터 이미지 불러오기
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))  # 이미지 크기 조절
+        self.invincible = False
+        self.invincible_timer = 0
 
-    # 장애물에 닿으면 다시 돌아와라
+        self.image = pygame.image.load('character.png').convert_alpha()
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+
     def set_initial_position(self):
         self.x = SCREEN_WIDTH // 2
         self.y = SCREEN_HEIGHT - self.height * 2
 
     def update_game_state(self):
         current_time = pygame.time.get_ticks()
-        print("스페이스 바 눌림 여부:", self.space_pressed)
-
+        
         if self.space_pressed and self.is_on_ground:
-            print('점프 중')
             self.vertical_momentum = -self.jump_speed
             self.is_on_ground = False
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            print('왼쪽키 눌림')
             self.x = max(LEFT_EDGE, self.x - self.speed)
         if keys[pygame.K_RIGHT]:
-            print('오른쪽키 눌림')
             self.x = min(RIGHT_EDGE, self.x + self.speed)
 
         if self.x > SCREEN_WIDTH // 2:
@@ -73,11 +70,9 @@ class Character:
                 self.y = block_collided.y - self.height
                 self.vertical_momentum = 0
                 self.is_on_ground = True
-                
-        if obstacle_collided:
-            print("장애물과 충돌 여부:", obstacle_collided)
+
+        if obstacle_collided and not self.invincible:
             self.life -= 1
-            print('라이프 개수', self.life)
             self.show_life = True
             self.life_counter = current_time
             if self.life == 0:
@@ -87,26 +82,35 @@ class Character:
                 self.set_initial_position()
                 self.vertical_momentum = 0
                 self.is_on_ground = True
-        
-        if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(self.portal.rect):
-            self.game_clear = True
 
-        #if Screen.portal_instance and pygame.Rect(self.x, self.y, self.width, self.height).colliderect(Screen.portal_instance.rect):
-        #    self.game_clear = True
+        if self.invincible and current_time - self.invincible_timer > 5000:  # 무적 시간 5초
+            self.invincible = False
 
-    # 장애물, 발판, 라이프 개수, 포털 그리기
     def draw_game_elements(self, screen, blocks, obstacles, portal):
         screen.blit(self.image, (self.x, self.y))
         for block in blocks:
             block.draw(screen)
         for obstacle in obstacles:
             obstacle.draw(screen)
-            
-        self.portal.draw(screen)
         
+        portal.draw(screen)
+
         if self.show_life:
             font = pygame.font.Font(None, 36)
-            text = font.render(f"like : {self.life}", True, BLACK)
+            text = font.render(f"life : {self.life}", True, BLACK)
             current_time = pygame.time.get_ticks()
             if current_time - self.life_counter >= 1000:  # 1초 동안만 표시
                 self.show_life = False
+
+    def check_item_collision(self, heart_item, speed_item, invincibility_item):
+        if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(heart_item.rect):
+            self.life += 1
+            heart_item.x = -100  # 화면 밖으로 이동
+        if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(speed_item.rect):
+            for obstacle in self.obstacles:
+                obstacle.speed /= 2  # 속도 절반으로 줄이기
+            speed_item.x = -100  # 화면 밖으로 이동
+        if pygame.Rect(self.x, self.y, self.width, self.height).colliderect(invincibility_item.rect):
+            self.invincible = True
+            self.invincible_timer = pygame.time.get_ticks()
+            invincibility_item.x = -100  # 화면 밖으로 이동
