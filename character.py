@@ -27,6 +27,9 @@ class Character:
         self.current_color_index = 0
         self.show_life = False
         self.life_counter = 0
+        
+        self.image = pygame.image.load('character.png').convert_alpha()  # 캐릭터 이미지 불러오기
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))  # 이미지 크기 조절
 
     # 장애물에 닿으면 다시 돌아와라
     def set_initial_position(self):
@@ -93,7 +96,7 @@ class Character:
 
     # 장애물, 발판, 라이프 개수, 포털 그리기
     def draw_game_elements(self, screen, blocks, obstacles, portal):
-        pygame.draw.rect(screen, self.colors[self.current_color_index], pygame.Rect(self.x, self.y, self.width, self.height))
+        screen.blit(self.image, (self.x, self.y))
         for block in blocks:
             block.draw(screen)
         for obstacle in obstacles:
