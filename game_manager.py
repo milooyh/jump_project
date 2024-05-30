@@ -95,6 +95,10 @@ class GameManager:
                 self.speed_item.draw(self.screen)
                 self.invincibility_item.draw(self.screen)
 
+                # 포털과 캐릭터의 충돌 감지
+                if character_rect.colliderect(self.portal.rect):
+                    self.character.game_clear = True
+                
                 if self.character.game_clear:
                     Screen.show_clear_screen(self.screen)
 
