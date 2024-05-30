@@ -86,7 +86,7 @@ class GameManager:
                     Screen.show_clear_screen(self.screen)
 
             elif self.character.game_over:
-                Screen.show_game_over_screen(self.screen)
+                Screen.show_game_over_screen(self.screen, self)
 
             pygame.display.update()
             self.clock.tick(FPS)
