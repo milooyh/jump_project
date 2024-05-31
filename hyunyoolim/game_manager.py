@@ -3,7 +3,7 @@ import sys
 from setting import *
 from character import Character
 from screen import Screen
-from block import Block
+from hyunyoolim.block import Block
 from obstacle import Obstacle
 from portal import Portal
 from item import *

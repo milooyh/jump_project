@@ -1,7 +1,7 @@
 import pygame
 from setting import *
 from screen import Screen
-from block import Block
+from hyunyoolim.block import Block
 from obstacle import Obstacle
 from portal import Portal
 
