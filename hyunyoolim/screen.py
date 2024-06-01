@@ -5,7 +5,12 @@ import sys
 from setting import *
 from obstacle import Obstacle
 from hyunyoolim.block import Block
-from portal import Portal
+from portal import Portal   
+
+
+
+
+
 
 class Screen:
     def __init__(self):
