@@ -1,7 +1,7 @@
 import pygame
 from setting import *
 from screen import Screen
-from hyunyoolim.block import Block
+from block import Block
 from obstacle import Obstacle
 from portal import Portal
 
@@ -34,7 +34,7 @@ class Character:
         self.speed_boost_remaining_time = 0
         self.heart_item_eaten = False
         
-        self.image = pygame.image.load('character.png').convert_alpha()
+        self.image = pygame.image.load('hyunyoolim\character.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def set_initial_position(self):
