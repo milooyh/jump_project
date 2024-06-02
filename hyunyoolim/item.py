@@ -19,12 +19,12 @@ class Item:
 
 class HeartItem(Item):
     def __init__(self, x, y):
-        super().__init__(x, y, 'heart.png')
+        super().__init__(x, y, 'hyunyoolim\heart.png')
 
 class SpeedItem(Item):
     def __init__(self, x, y):
-        super().__init__(x, y, 'slow.png')
+        super().__init__(x, y, 'hyunyoolim\slow.png')
 
 class InvincibilityItem(Item):
     def __init__(self, x, y):
-        super().__init__(x, y, 'star.png')
+        super().__init__(x, y, 'hyunyoolim\star.png')
